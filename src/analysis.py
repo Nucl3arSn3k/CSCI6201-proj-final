@@ -56,7 +56,7 @@ def delve(df: pd.DataFrame,cg) -> None:
         print(f"\n{col}: {df[col].nunique()} distinct values")
         print(df[col].value_counts(dropna=False).head(15))
 
-def visualization(df: pd.DataFrame) -> None:
+def visualization_filter(df: pd.DataFrame) -> None:
     #generates charts.
     mask = df["SERVICETYPECODEDESCRIPTION"].str.contains("SWMA", na=False)
     san = df.loc[mask]
@@ -70,9 +70,36 @@ def visualization(df: pd.DataFrame) -> None:
         "Street Cleaning",
         "Rat Replacement Containers",
         "Public Space Litter Can-Collection",
-    ]
+    ] #narrow list that should proxy for the types of mess we find near bars
 
     san = df.loc[df["SERVICECODEDESCRIPTION"].isin(SMELL_TYPES)]
+
+    #print(type(san))
+    #same dataframe type
+    scatter_plot(san)
+
+
+def scatter_plot(df: pd.DataFrame) -> None:
+    SHAW_BOX = {"lon_min": -77.034, "lon_max": -77.019,
+                "lat_min": 38.907, "lat_max": 38.916}
+
+
+    fig, ax = plt.subplots(figsize=(8,8))
+    ax.scatter(df["LONGITUDE"],df["LATITUDE"],s=2,alpha=0.3)
+
+    b = SHAW_BOX
+    ax.plot(
+        [b["lon_min"], b["lon_max"], b["lon_max"], b["lon_min"], b["lon_min"]],
+        [b["lat_min"], b["lat_min"], b["lat_max"], b["lat_max"], b["lat_min"]],
+        color="green",
+    )
+
+    ax.set_title("Sanitation-type 311 requests, Washington DC, 2025")
+    ax.set_xlabel("Longitude")
+    ax.set_ylabel("Latitude")
+    ax.set_aspect("equal")
+    fig.savefig(FIGURES_DIR / "01_sanitation_map.png", dpi=160)
+    plt.close(fig)
 
 def main():
     df = load_data()
@@ -91,7 +118,7 @@ def main():
     ]
     delve(df,CATEGORY_COLUMNS)
     """
-    visualization(df)
+    visualization_filter(df)
 
 
 
