@@ -24,6 +24,11 @@ I drew a bar chart of solid-waste requests. They are predominantly scheduled-ser
 
 For the scatter plot, I mapped the smell-type complaints and drew a basic bounding box around the Shaw neighborhood to see if complaints concentrate there. Requests appear across most of the city but cluster in the dense central neighborhoods. The Shaw box sits inside one of those clusters, holding 3.7% of all smell-type requests (2,694 of 71,997).
 
+## Install and run instructions
+Clone the repo, make sure you have the required libraries (pandas, matplotlib and scikit-learn),as well as a Python version 3.10 or newer. Then run the following from project root:
+
+    python src/analysis.py
+
 ## Next steps for final project
 - **What is working:** the full pipeline (load, explore, plot, grid-cell table, baseline and linear regression).
 - **What needs work:** the model has no bar feature yet, so it can't answer the research questions. The target is also heavily skewed (median 18, mean 41, max 533).
