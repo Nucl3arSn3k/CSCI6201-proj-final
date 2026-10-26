@@ -98,7 +98,7 @@ def visualization_filter(df: pd.DataFrame) -> list[str]:
         "Street Cleaning",
         "Rat Replacement Containers",
         "Public Space Litter Can-Collection",
-    ] #narrow list that should proxy for the types of mess we find near bars, May also include abandonded bicycles
+    ] #narrow list that should proxy for the types of mess we find near bars, May also include abandonded bicycles...
 
     san = df.loc[df["SERVICECODEDESCRIPTION"].isin(SMELL_TYPES)]
     print("\n=== Smell-type requests (narrow list) ===")

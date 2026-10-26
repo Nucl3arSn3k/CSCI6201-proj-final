@@ -1,0 +1,21 @@
+Dataset information
+
+Dataset name:
+311 City Service Requests in 2025
+
+Source / organization:
+Government of the District of Columbia (DC Open Data), 311 service request data.
+
+URL:
+https://opendata.dc.gov/datasets/85a2474b468b4dfeb84f9165210fe5a3_18/explore?location=38.909622%2C-77.023480%2C17
+
+Description:
+One row per 311 service request made in Washington, DC during 2025 (440,600
+requests, 33 columns). Each record holds request type and category, the agency
+that handled it, dates added and resolved, status, ward, street address, and
+latitude/longitude. Used here to study sanitation-type requests and, later,
+their relationship to bar locations.
+
+Original or modified:
+The data values are the original, unaltered download. The only change to the file
+is that it was gzip-compressed (311_City_Service_Requests_in_2025.csv.gz).
