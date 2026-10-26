@@ -8,12 +8,6 @@ DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 FIGURES_DIR = Path(__file__).resolve().parent.parent / "figures"
 FIGURES_DIR.mkdir(exist_ok=True)
 
-def linear_regression(df:pd.DataFrame) -> None:
-    print("Wallfacer.")
-
-
-
-
 def inital_analysis(df:pd.DataFrame) -> None:
     print("\n=== Initial analysis ===")
     print("Shape (rows, columns):", df.shape)
