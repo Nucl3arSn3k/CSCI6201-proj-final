@@ -85,6 +85,7 @@ def visualization_filter(df: pd.DataFrame) -> list[str]:
     #generates charts.
     mask = df["SERVICETYPECODEDESCRIPTION"].str.contains("SWMA", na=False)
     san = df.loc[mask]
+    swma = san  # all solid-waste requests, kept for the bar chart
     print("\n=== Solid-waste (SWMA) requests ===")
     print("SWMA rows:", len(san), f"({len(san) / len(df) * 100:.1f}% of all requests)")
     print(san["SERVICECODEDESCRIPTION"].value_counts())
@@ -111,7 +112,7 @@ def visualization_filter(df: pd.DataFrame) -> list[str]:
     #print(type(san))
     #same dataframe type
     scatter_plot(san)
-    plot_top_request_types(san)
+    plot_top_request_types(swma)
 
     return SMELL_TYPES
 
@@ -158,7 +159,7 @@ def plot_top_request_types(df: pd.DataFrame) -> None:
     ax.barh(counts.index.tolist(), counts.to_numpy())
     ax.invert_yaxis()  # largest bar on top
 
-    ax.set_title("Top 10 311 request types, 2025")
+    ax.set_title("Top 10 solid-waste (SWMA) request types, 2025")
     ax.set_xlabel("Number of requests")
     ax.set_ylabel("Request type")
     fig.tight_layout()
