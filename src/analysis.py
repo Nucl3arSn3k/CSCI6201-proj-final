@@ -193,9 +193,9 @@ def build_cell_table(df: pd.DataFrame,smell_types: list[str]) -> pd.DataFrame:
 
 def main():
     df = load_data()
-    """
 
-    #inital_analysis(df)
+
+    inital_analysis(df)
     explore_data(df)
 
     CATEGORY_COLUMNS = [
@@ -207,7 +207,7 @@ def main():
         "ORGANIZATIONACRONYM",
     ]
     delve(df,CATEGORY_COLUMNS)
-    """
+
     filtlist = visualization_filter(df) #bar chart and scatter plot
     cells = build_cell_table(df,filtlist)  # one row per cell, has sancompcount
     print("\nFirst rows of the cell table:")
