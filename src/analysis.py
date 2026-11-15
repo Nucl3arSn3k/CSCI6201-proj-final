@@ -33,6 +33,10 @@ def inital_analysis(df:pd.DataFrame) -> None:
 def load_data() -> pd.DataFrame: #loading compressed dataset as uncompressed doesn't fit in github
     return pd.read_csv(DATA_DIR / "311_City_Service_Requests_in_2025.csv.gz")
 
+
+def load_alcdata() -> pd.DataFrame:
+    return pd.read_csv(DATA_DIR / "Alcohol_License_Business_Locations.csv")
+
 def explore_data(df:pd.DataFrame) -> None:
     print("\n=== Data exploration ===")
     #exploratory
