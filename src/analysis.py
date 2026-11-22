@@ -3,7 +3,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 import regression
-
+import barclean
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 FIGURES_DIR = Path(__file__).resolve().parent.parent / "figures"
 FIGURES_DIR.mkdir(exist_ok=True)
@@ -192,7 +192,7 @@ def build_cell_table(df: pd.DataFrame,smell_types: list[str]) -> pd.DataFrame:
 
 def main():
     df = load_data()
-
+    df2 = load_alcdata()
 
     inital_analysis(df)
     explore_data(df)
