@@ -3,7 +3,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 import regression
-import barclean
+from barclean import CELL, clean_licenses, show_license_types
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 FIGURES_DIR = Path(__file__).resolve().parent.parent / "figures"
 FIGURES_DIR.mkdir(exist_ok=True)
@@ -36,6 +36,61 @@ def load_data() -> pd.DataFrame: #loading compressed dataset as uncompressed doe
 
 def load_alcdata() -> pd.DataFrame:
     return pd.read_csv(DATA_DIR / "Alcohol_License_Business_Locations.csv")
+
+GROUPS = { #holds groups of bar
+    "bars_nightlife": {"Tavern", "Nightclub"},
+    "bars_on_premises": {"Tavern", "Nightclub", "Restaurant", "Multipurpose", "Hotel", "Club"},
+    "bars_off_premises": {"Liquor Store", "Grocery Store", "Convenience Store"},
+}
+
+def bar_counts(lic: pd.DataFrame, groups: dict[str, set[str]] = GROUPS) -> pd.DataFrame:
+
+    present = set(lic["TYPE"].dropna().unique())
+    for name, types in groups.items():
+        missing = sorted(types - present)
+        if missing:
+            print(f"WARNING: group {name} lists TYPEs not in the data: {missing}")
+
+    key = ["cell_x", "cell_y"]
+    out = lic.groupby(key).size().to_frame("bars_total")
+    for name, types in groups.items():
+        sub = lic.loc[lic["TYPE"].isin(list(types))]
+        out[name] = sub.groupby(key).size()
+    return out.fillna(0).astype(int).reset_index()
+
+
+def add_neighbor_sum(counts: pd.DataFrame, col: str) -> pd.DataFrame: #Add <col>_nbr = sum of col over the 8 surrounding cells (smell/litter spills over edges)
+    base = counts[["cell_x", "cell_y", col]]
+    total = None
+    for dx in (-1, 0, 1):
+        for dy in (-1, 0, 1):
+            if dx == 0 and dy == 0:
+                continue
+            shifted = base.assign(cell_x=base["cell_x"] - dx, cell_y=base["cell_y"] - dy)
+            shifted = shifted.rename(columns={col: "v"})
+            total = shifted if total is None else pd.concat([total, shifted])
+    nbr = total.groupby(["cell_x", "cell_y"]).agg(**{f"{col}_nbr": ("v", "sum")}).reset_index()
+    return counts.merge(nbr, on=["cell_x", "cell_y"], how="outer").fillna(0)
+
+
+def add_bar_features(cells: pd.DataFrame, lic: pd.DataFrame) -> pd.DataFrame: #LEFT join so the sample stays the same 1,758 cells; no license => count 0
+    counts = bar_counts(lic)
+    # neighbor counts must be computed on the full license grid, then joined
+    counts = add_neighbor_sum(counts, "bars_total")
+    merged = cells.merge(counts, on=["cell_x", "cell_y"], how="left")
+    bar_cols = [c for c in counts.columns if c not in ("cell_x", "cell_y")]
+    merged[bar_cols] = merged[bar_cols].fillna(0)
+
+    bars_total = merged["bars_total"].to_numpy()  # ndarray: type checker-friendly
+    kept = int(bars_total.sum())
+    print("\n=== Bar join ===")
+    print(f"Licenses landing in a 311 cell: {kept} of {l    en(lic)}")
+    print("  (the rest sit in cells with zero 311 requests of any kind)")
+    print("Cells with >=1 license:", int((bars_total > 0).sum()), "of", len(merged))
+    return merged
+
+
+
 
 def explore_data(df:pd.DataFrame) -> None:
     print("\n=== Data exploration ===")

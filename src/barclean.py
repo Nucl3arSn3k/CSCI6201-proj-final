@@ -8,9 +8,6 @@ CELL = 0.003  # degrees; MUST match build_cell_table() in analysis.py
 EXCLUDE_TYPES = {"Third-Party Delivery"}
 
 
-def load_alcdata(path: Path) -> pd.DataFrame:
-    return pd.read_csv(path)
-
 
 def show_license_types(lic: pd.DataFrame) -> None:
     """Run this first and look at it before touching GROUPS in bars.py."""
