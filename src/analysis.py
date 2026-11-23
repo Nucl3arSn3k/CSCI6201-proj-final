@@ -84,7 +84,7 @@ def add_bar_features(cells: pd.DataFrame, lic: pd.DataFrame) -> pd.DataFrame: #L
     bars_total = merged["bars_total"].to_numpy()  # ndarray: type checker-friendly
     kept = int(bars_total.sum())
     print("\n=== Bar join ===")
-    print(f"Licenses landing in a 311 cell: {kept} of {l    en(lic)}")
+    print(f"Licenses landing in a 311 cell: {kept} of {len(lic)}")
     print("  (the rest sit in cells with zero 311 requests of any kind)")
     print("Cells with >=1 license:", int((bars_total > 0).sum()), "of", len(merged))
     return merged
