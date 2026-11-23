@@ -3,7 +3,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 import regression
-from barclean import CELL, clean_licenses, show_license_types
+import barclean
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 FIGURES_DIR = Path(__file__).resolve().parent.parent / "figures"
 FIGURES_DIR.mkdir(exist_ok=True)
@@ -249,6 +249,7 @@ def main():
     df = load_data()
     df2 = load_alcdata()
 
+    """
     inital_analysis(df)
     explore_data(df)
 
@@ -260,10 +261,24 @@ def main():
         "PRIORITY",
         "ORGANIZATIONACRONYM",
     ]
-    delve(df,CATEGORY_COLUMNS)
+    delve(df, CATEGORY_COLUMNS)
+    """
 
-    filtlist = visualization_filter(df) #bar chart and scatter plot
-    cells = build_cell_table(df,filtlist)  # one row per cell, has sancompcount
+    # Still need smell-list to build cell type table
+    filtlist = visualization_filter(df)
+    cells = build_cell_table(df, filtlist)  # one row per cell, has sancompcount
+
+    # --- Bars: look at the types, clean, then join onto the cells ---
+    barclean.show_license_types(df2)      # delete once GROUPS is set
+    lic = barclean.clean_licenses(df2)
+    cells = add_bar_features(cells, lic)  # adds bars_total, group counts, bars_total_nbr
+
+    corr_cols = ["sancompcount", "bars_total", "bars_total_nbr",
+                 "bars_nightlife", "bars_on_premises", "bars_off_premises"]
+    corr = cells.loc[:, corr_cols].corr() #correlation
+    print("\nCorrelation of bar features with sancompcount:")
+    print(corr["sancompcount"])
+
     print("\nFirst rows of the cell table:")
     print(cells.head())
     print("Cell table shape (cells, columns):", cells.shape)
