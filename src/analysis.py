@@ -37,26 +37,9 @@ def load_data() -> pd.DataFrame: #loading compressed dataset as uncompressed doe
 def load_alcdata() -> pd.DataFrame:
     return pd.read_csv(DATA_DIR / "Alcohol_License_Business_Locations.csv")
 
-GROUPS = { #holds groups of bar
-    "bars_nightlife": {"Tavern", "Nightclub"},
-    "bars_on_premises": {"Tavern", "Nightclub", "Restaurant", "Multipurpose", "Hotel", "Club"},
-    "bars_off_premises": {"Liquor Store", "Grocery Store", "Convenience Store"},
-}
 
-def bar_counts(lic: pd.DataFrame, groups: dict[str, set[str]] = GROUPS) -> pd.DataFrame:
-
-    present = set(lic["TYPE"].dropna().unique())
-    for name, types in groups.items():
-        missing = sorted(types - present)
-        if missing:
-            print(f"WARNING: group {name} lists TYPEs not in the data: {missing}")
-
-    key = ["cell_x", "cell_y"]
-    out = lic.groupby(key).size().to_frame("bars_total")
-    for name, types in groups.items():
-        sub = lic.loc[lic["TYPE"].isin(list(types))]
-        out[name] = sub.groupby(key).size()
-    return out.fillna(0).astype(int).reset_index()
+def bar_counts(lic: pd.DataFrame) -> pd.DataFrame:
+    return lic.groupby(["cell_x", "cell_y"]).size().to_frame("bars_total").reset_index()
 
 
 def add_neighbor_sum(counts: pd.DataFrame, col: str) -> pd.DataFrame: #Add <col>_nbr = sum of col over the 8 surrounding cells (smell/litter spills over edges)
@@ -263,27 +246,22 @@ def main():
     ]
     delve(df, CATEGORY_COLUMNS)
     """
+    #print(df2.groupby(["TYPE", "CLASS"]).size())
 
     # Still need smell-list to build cell type table
     filtlist = visualization_filter(df)
     cells = build_cell_table(df, filtlist)  # one row per cell, has sancompcount
 
     # --- Bars: look at the types, clean, then join onto the cells ---
-    barclean.show_license_types(df2)      # delete once GROUPS is set
     lic = barclean.clean_licenses(df2)
     cells = add_bar_features(cells, lic)  # adds bars_total, group counts, bars_total_nbr
 
-    corr_cols = ["sancompcount", "bars_total", "bars_total_nbr",
-                 "bars_nightlife", "bars_on_premises", "bars_off_premises"]
-    corr = cells.loc[:, corr_cols].corr() #correlation
-    print("\nCorrelation of bar features with sancompcount:")
-    print(corr["sancompcount"])
+    corr_cols = ["sancompcount"] + [c for c in cells.columns if c.startswith("bars_")]
+    corr = cells.loc[:, corr_cols].corr()
 
-    print("\nFirst rows of the cell table:")
-    print(cells.head())
-    print("Cell table shape (cells, columns):", cells.shape)
-    print("\n=== Regression ===")
-    regression.run_model(cells)
+    regression.run_model(cells, regression.BASE_FEATURES, "Old model")
+    regression.run_model(cells, regression.BASE_FEATURES + regression.BAR_FEATURES, "With bars")
+
 
 
 

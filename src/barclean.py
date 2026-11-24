@@ -5,7 +5,8 @@ import pandas as pd
 CELL = 0.003  # degrees; MUST match build_cell_table() in analysis.py
 
 # Not physical places where people drink or buy alcohol, so bye bye
-EXCLUDE_TYPES = {"Third-Party Delivery"}
+EXCLUDE_TYPES = {"Third-Party Delivery", "Caterer", "Internet", "Wholesaler",
+                 "Manufacturer", "Marine Vessel", "Railroad"}
 
 
 
@@ -22,7 +23,10 @@ def show_license_types(lic: pd.DataFrame) -> None:
 def clean_licenses(raw: pd.DataFrame) -> pd.DataFrame:
     n0 = len(raw)
     lic = raw.copy()
-    lic["TYPE"] = lic["TYPE"].astype("string").str.strip()
+    lic["TYPE"] = (
+        lic["TYPE"].astype("string").str.strip()
+        .str.replace(r"\s*-\s*", " - ", regex=True)
+    )
 
     # Using .loc[mask] (not lic[mask]) keeps the type checker happy: it is
     # typed as returning a DataFrame, whereas lic[...] is Series | DataFrame.
