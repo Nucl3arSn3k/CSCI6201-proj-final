@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import regression
 import barclean
+import charting
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 FIGURES_DIR = Path(__file__).resolve().parent.parent / "figures"
 FIGURES_DIR.mkdir(exist_ok=True)
@@ -232,6 +233,7 @@ def main():
     df = load_data()
     df2 = load_alcdata()
 
+    # Exploration only; not needed for the final run
     """
     inital_analysis(df)
     explore_data(df)
@@ -245,20 +247,27 @@ def main():
         "ORGANIZATIONACRONYM",
     ]
     delve(df, CATEGORY_COLUMNS)
-    """
     #print(df2.groupby(["TYPE", "CLASS"]).size())
+    """
 
-    # Still need smell-list to build cell type table
+    # Smell-type list for the cell table; also draws figures 01 and 02
     filtlist = visualization_filter(df)
     cells = build_cell_table(df, filtlist)  # one row per cell, has sancompcount
 
-    # --- Bars: look at the types, clean, then join onto the cells ---
+    # Bars: clean the licenses, then join onto the cells
     lic = barclean.clean_licenses(df2)
-    cells = add_bar_features(cells, lic)  # adds bars_total, group counts, bars_total_nbr
+    cells = add_bar_features(cells, lic)  # adds bars_total and bars_total_nbr
 
     corr_cols = ["sancompcount"] + [c for c in cells.columns if c.startswith("bars_")]
     corr = cells.loc[:, corr_cols].corr()
+    print("\nCorrelation with sancompcount:")
+    print(corr["sancompcount"])
 
+    # Figures 03 and 04 (01 and 02 come from visualization_filter)
+    charting.plot_complaints_by_bar_count(cells, FIGURES_DIR)
+    charting.plot_bars_and_complaints_map(cells, lic, FIGURES_DIR)
+
+    # Models
     regression.run_model(cells, regression.BASE_FEATURES, "Old model")
     regression.run_model(cells, regression.BASE_FEATURES + regression.BAR_FEATURES, "With bars")
 
